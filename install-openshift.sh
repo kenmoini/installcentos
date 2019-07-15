@@ -9,11 +9,12 @@ export DOMAIN=${DOMAIN:="$(curl -s ipinfo.io/ip).nip.io"}
 export USERNAME=${USERNAME:="$(whoami)"}
 export PASSWORD=${PASSWORD:=password}
 export VERSION=${VERSION:="3.11"}
-export SCRIPT_REPO=${SCRIPT_REPO:="https://raw.githubusercontent.com/gshipley/installcentos/master"}
+export SCRIPT_REPO=${SCRIPT_REPO:="https://raw.githubusercontent.com/kenmoini/installcentos/master"}
 export IP=${IP:="$(ip route get 8.8.8.8 | awk '{print $NF; exit}')"}
-export API_PORT=${API_PORT:="8443"}
+export API_PORT=${API_PORT:="443"}
 export LETSENCRYPT=${LETSENCRYPT:="false"}
 export MAIL=${MAIL:="example@email.com"}
+export DISK=${DISK:="/dev/sdb"}
 
 ## Make the script interactive to set the variables
 if [ "$INTERACTIVE" = "true" ]; then
@@ -84,17 +85,17 @@ echo "******"
 # install updates
 yum update -y
 
-# install the following base packages
-yum install -y  wget git zile nano net-tools docker-1.13.1\
-				bind-utils iptables-services \
-				bridge-utils bash-completion \
-				kexec-tools sos psacct openssl-devel \
-				httpd-tools NetworkManager \
-				python-cryptography python2-pip python-devel  python-passlib \
-				java-1.8.0-openjdk-headless "@Development Tools"
-
-#install epel
+#install epel first because zile and python2-pip aren't part of the normal repos
 yum -y install epel-release
+
+# install the following base packages
+yum -y install wget git zile nano net-tools docker-1.13.1\
+    bind-utils iptables-services \
+    bridge-utils bash-completion \
+    kexec-tools sos psacct openssl-devel \
+    httpd-tools NetworkManager \
+    python-cryptography python2-pip python-devel  python-passlib \
+    java-1.8.0-openjdk-headless "@Development Tools"
 
 # Disable the EPEL repository globally so that is not accidentally used during later steps of the installation
 sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
